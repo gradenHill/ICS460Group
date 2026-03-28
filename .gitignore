@@ -1,0 +1,51 @@
+# ==========================================
+# Virtualization & Emulation (CRITICAL)
+# ==========================================
+# Ignore UTM, VirtualBox, VMware, and ISO files
+*.utm/
+*.qcow2
+*.ova
+*.vdi
+*.vmdk
+*.iso
+*.nvram
+*.vmx
+
+# ==========================================
+# Packet Captures
+# ==========================================
+# Prevent Kwesi's large traffic captures from uploading
+*.pcap
+*.pcapng
+*.cap
+
+# ==========================================
+# Python & Scapy 
+# ==========================================
+# Ignore Trevor's compiled Python files and virtual environments
+__pycache__/
+*.py[cod]
+*$py.class
+venv/
+env/
+.env
+
+# ==========================================
+# Snort Outputs
+# ==========================================
+# Ignore local log files and alerts generated during testing
+snort.log*
+alert*
+/var/log/snort/*
+
+# ==========================================
+# OS Generated Files
+# ==========================================
+# Keep Mac and Windows hidden files out of the repo
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+Thumbs.db
+ehthumbs.db
