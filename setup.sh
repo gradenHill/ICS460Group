@@ -92,8 +92,11 @@ if [ -z "$TMUX" ]; then
     
     # Split the screen vertically
     tmux split-window -h -t NIDS:0.0
-    
-    # Right Pane: The Attacker Environment (Trevor Reedy) 
+
+    # Enable scrolling and clicking windows independently
+    tmux set -g mouse on
+
+    # Right Pane: The Attacker Environment
     tmux send-keys -t NIDS:0.1 "sudo ip netns exec attacker bash" C-m
     tmux send-keys -t NIDS:0.1 "clear && echo '--- ATTACKER SPACE (10.0.0.20) ---' && echo 'Role: Python & Scapy Attack Scripting'" C-m
     
