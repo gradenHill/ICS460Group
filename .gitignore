@@ -14,7 +14,7 @@
 # ==========================================
 # Packet Captures
 # ==========================================
-# Prevent Kwesi's large traffic captures from uploading
+# Prevent large traffic captures from uploading
 *.pcap
 *.pcapng
 *.cap
@@ -22,7 +22,7 @@
 # ==========================================
 # Python & Scapy 
 # ==========================================
-# Ignore Trevor's compiled Python files and virtual environments
+# Ignore compiled Python files and virtual environments
 __pycache__/
 *.py[cod]
 *$py.class
