@@ -14,13 +14,13 @@
 
 ## Technical Architecture
 * **Subnet:** `10.0.0.0/24`
-* **Target Node (Server):** `10.0.0.10` (Managed via the `target` namespace)
-* **Attacker Node:** `10.0.0.20` (Managed via the `attacker` namespace)
+* **Target Node (Server):** `10.0.0.10`
+* **Attacker Node:** `10.0.0.20`
 * **Connection:** A virtual Ethernet (`veth`) pair connecting the two isolated environments.
 
 ## First Time Setup
 
-If you are starting with a blank computer, follow these steps to get your lab environment running.
+If you are starting with a blank computer, follow these steps to get the project running.
 
 ### 1. Install a Hypervisor
 You need software to run the Virtual Machine (VM).
@@ -51,13 +51,8 @@ Then in your Mac/PC terminal, connect by running this command, replacing the nec
 ssh [your username here]@[noted IP address here]
 ```
 
-### 5. Generate a GitHub Personal Access Token (PAT)
-You cannot use your GitHub password in the terminal.
-1.  Go to GitHub **Settings** > **Developer Settings** > **Personal Access Tokens** > **Tokens (classic)**.
-2.  Generate a new token with the **'repo'** scope checked. **Copy it and save it somewhere safe.**
-
-### 6. Clone the Repo
-Now, run the following in your VM terminal:
+### 5. Clone the Repo
+Run the following in your VM terminal:
 ```bash
 git clone [https://github.com/gradenHill/ICS460Group.git](https://github.com/gradenHill/ICS460Group.git)
 ```
@@ -72,11 +67,18 @@ sudo ./setup.sh
 Running `setup.sh` automatically launches a **tmux** session with two active panes:
 
 ### Left Pane: The Target
-This pane is automatically logged into the `target` namespace.
+This pane automatically logs into the `target` namespace.
 * **Run Snort:** `snort -A console -q -c ./snort.conf -i veth-tar -k none`
-* **Capture Traffic:** `sudo tcpdump -i veth-tar -w capture.pcap`
+* **Capture Traffic:** `tcpdump -i veth-tar -w capture.pcap`
 
 ### Right Pane: The Attacker
-This pane is automatically logged into the `attacker` namespace.
+This pane automatically logs into the `attacker` namespace.
 * **Test Ping Detection:** Run `ping -c 3 10.0.0.10`. The Target pane should respond.
 * **Run Attacks (not yet written):** Navigate to `attack-scripts/` and execute Python/Scapy scripts targeting `10.0.0.10`.
+
+## Troubleshooting
+1. After you git pull, the files might be owned by a different user. If Snort won't start, run this from the root of the repo:
+`sudo chown -R $USER:$USER .`
+
+2. If Git blocks you from pulling, run:
+`git config --global --add safe.directory /home/$USER/ICS460Group`
