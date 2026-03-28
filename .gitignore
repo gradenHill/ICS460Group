@@ -1,6 +1,4 @@
-# ==========================================
-# Virtualization & Emulation (CRITICAL)
-# ==========================================
+# Virtualization & Emulation
 # Ignore UTM, VirtualBox, VMware, and ISO files
 *.utm/
 *.qcow2
@@ -11,17 +9,13 @@
 *.nvram
 *.vmx
 
-# ==========================================
 # Packet Captures
-# ==========================================
 # Prevent large traffic captures from uploading
 *.pcap
 *.pcapng
 *.cap
 
-# ==========================================
 # Python & Scapy 
-# ==========================================
 # Ignore compiled Python files and virtual environments
 __pycache__/
 *.py[cod]
@@ -30,17 +24,13 @@ venv/
 env/
 .env
 
-# ==========================================
 # Snort Outputs
-# ==========================================
 # Ignore local log files and alerts generated during testing
 snort.log*
 alert*
 /var/log/snort/*
 
-# ==========================================
 # OS Generated Files
-# ==========================================
 # Keep Mac and Windows hidden files out of the repo
 .DS_Store
 .DS_Store?
