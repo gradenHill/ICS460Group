@@ -1,0 +1,1 @@
+alert tcp any any -> 10.0.0.10 80 (msg:"POTENTIAL SYN FLOOD DETECTED"; flags:S; sid:1000001; rev:1;)
