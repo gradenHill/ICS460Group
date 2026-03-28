@@ -39,20 +39,32 @@ Download the **Ubuntu 22.04 LTS Server** ISO.
 3.  **Network:** Set the network adapter to **Shared Network** or **NAT**.
 4.  Complete the Ubuntu installation process (create your own username and password).
 
-### 4. Enable SSH & Get the IP (Optional, but allows you to use your native terminal to control the VM)
+### 4. Configure GitHub SSH Keys (No Tokens Required)
+To avoid typing passwords or tokens every time you pull/push, run these inside your VM:
+1. **Generate Key:** `ssh-keygen -t ed25519 -C "your_email@example.com"` (Press Enter for all prompts).
+2. **Copy Key:** `cat ~/.ssh/id_ed25519.pub`.
+3. **Add to GitHub:** Go to **Settings > SSH and GPG keys > New SSH Key** and paste the string.
+4. **Clone via SSH:** ```bash
+   git clone git@github.com:gradenHill/ICS460Group.git
+
+### 5. Enable SSH & Get the IP (Optional, but allows you to use your native terminal to control the VM)
 Once logged into your new Ubuntu VM, run these commands to allow your host computer to connect to it (this makes copy/pasting possible):
 ```bash
 sudo apt update && sudo apt install openssh-server -y
 ip a
 ```
-*Note the IP address (e.g., 192.168.x.x). Use your Mac/PC terminal to connect via `ssh username@ip-address`.*
+Note the IP address listed (e.g., 192.168.x.x)
+Then in your Mac/PC terminal, connect by running this command, replacing the necessary fields.
+```bash
+ssh [your username here]@[noted IP address here]
+```
 
-### 5. Generate a GitHub Personal Access Token (PAT)
+### 6. Generate a GitHub Personal Access Token (PAT)
 You cannot use your GitHub password in the terminal.
 1.  Go to GitHub **Settings** > **Developer Settings** > **Personal Access Tokens** > **Tokens (classic)**.
 2.  Generate a new token with the **'repo'** scope checked. **Copy it and save it somewhere safe.**
 
-### 6. Clone the Repo
+### 7. Clone the Repo
 Now, run the following in your VM terminal:
 ```bash
 git clone [https://github.com/gradenHill/ICS460Group.git](https://github.com/gradenHill/ICS460Group.git)
