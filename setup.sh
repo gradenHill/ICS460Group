@@ -6,6 +6,12 @@
 # Purpose: Automates tool installation and internal network simulation [cite: 6, 14]
 # ==============================================================================
 
+
+# Fix permissions for the current user
+echo "[*] Ensuring project files are owned by $USER..."
+sudo chown -R $USER:$USER .
+
+
 echo "===================================================================="
 echo " Starting ICS 460 NIDS Laboratory Provisioning..."
 echo "===================================================================="
