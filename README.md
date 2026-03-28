@@ -1,38 +1,22 @@
 # ICS460Group: Network Intrusion Detection
 
-## The Team
+## Group Members
 * **Graden Hill:** Infrastructure Lead. Managed the Ubuntu Server, network namespace architecture, and Snort daemon configuration.
 * **Trevor Reedy:** Attack Automation. Developed Python/Scapy scripts to simulate malicious TCP/IP traffic.
 * **Kwesi Dacosta:** Data Analyst. Managed packet captures (PCAPs) and calculated empirical detection metrics (False Positives/Negatives).
 * **Elise DeSimone:** Project Manager & Documentation. Maintained the GitHub repository and finalized the experimental reports.
+
+## Repository Structure
+* `/attack-scripts/`: Python and Scapy attack automation.
+* `/snort-rules/`: Snort `local.rules` and configuration files.
+* `/pcaps/`: Sample packet captures for rule verification.
+* `/docs/`: Project proposal, architecture diagrams, and final reports.
 
 ## Technical Architecture
 * **Subnet:** `10.0.0.0/24`
 * **Target Node (Server):** `10.0.0.10` (Managed via the `target` namespace)
 * **Attacker Node:** `10.0.0.20` (Managed via the `attacker` namespace)
 * **Connection:** A virtual Ethernet (`veth`) pair connecting the two isolated environments.
-
-## 📂 Repository Structure
-* `/attack-scripts/`: Python and Scapy attack automation.
-* `/snort-rules/`: Snort `local.rules` and configuration files.
-* `/pcaps/`: Sample packet captures for rule verification.
-* `/docs/`: Project proposal, architecture diagrams, and final reports.
-
-## How to Run
-
-### 1. Remote Access
-To enable easy copy/pasting of scripts and tokens, connect to your Ubuntu VM from your host machine via SSH:
-```bash
-ssh [username]@[vm-ip-address]
-```
-
-### 2. Environment Provisioning
-Once logged in, navigate to the repository and run the master setup script. This will install Snort/Scapy, build the network, and launch the split-screen workspace:
-```bash
-cd ICS460Group
-chmod +x setup.sh
-sudo ./setup.sh
-```
 
 ## First Time Setup
 
@@ -74,7 +58,7 @@ Now, run the following in your VM terminal:
 git clone [https://github.com/gradenHill/ICS460Group.git](https://github.com/gradenHill/ICS460Group.git)
 ```
 
-## Workspace Workflow
+## How to Run
 Run the following commands:
 ```bash
 cd ICS460Group
