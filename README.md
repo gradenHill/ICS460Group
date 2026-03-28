@@ -71,11 +71,11 @@ sudo ./setup.sh
 ```
 Running `setup.sh` automatically launches a **tmux** session with two active panes:
 
-### **Left Pane: The Target (Graden/Kwesi)**
+### Left Pane: The Target
 This pane is automatically logged into the `target` namespace.
 * **Run Snort:** `sudo snort -A console -q -c /etc/snort/snort.conf -i veth-tar`
 * **Capture Traffic:** `sudo tcpdump -i veth-tar -w capture.pcap`
 
-### **Right Pane: The Attacker (Trevor)**
+### Right Pane: The Attacker
 This pane is automatically logged into the `attacker` namespace.
 * **Run Attacks:** Navigate to `attack-scripts/` and execute Python/Scapy scripts targeting `10.0.0.10`.
