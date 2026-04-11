@@ -54,19 +54,23 @@ tmux send-keys -t NIDS:0.0 "clear && printf '=== MANAGEMENT PANE ===\\n\\n' && p
 tmux split-window -v -t NIDS:0.0
 
 # LEFT PANE: Run command to enter the target namespace
-# C-m is "enter"
-# -t = allows you to target the tmux pane
+## C-m is "enter"
+## -t = allows you to target the tmux pane
 tmux send-keys -t NIDS:0.1 "sudo ip netns exec target bash" C-m
-tmux send-keys -t NIDS:0.1 " history -s 'snort -A console -q -c ./snort.conf -i veth-target -k none'; history -s 'tcpdump -i veth-target -w capture.pcap &'; clear && \
+
+## Print instructions
+TARGET_UI="history -s 'snort -A console -q -c ./snort.conf -i veth-target -k none'; history -s 'tcpdump -i veth-target -w capture.pcap &'; clear && \
 printf '=== TARGET SPACE (10.0.0.10) ===\\n\\n' && \
 printf 'STEP 1: Start tcpdump to capture pcaps\\n' && \
 printf '\\033[1;32mtcpdump -i veth-target -w capture.pcap &\\033[0m\\n\\n' && \
 printf 'STEP 2: Start Snort to demonstrate detection\\n' && \
 printf '\\033[1;32msnort -A console -q -c ./snort.conf -i veth-target -k none\\033[0m\\n\\n' && \
 printf '--- EXIT INSTRUCTIONS ---\\n' && \
-printf '1. Stop Snort: use management pane && \
+printf '1. Stop Snort: Use Management Pane\\n' && \
 printf '2. Stop tcpdump: Type \\033[1;33mpkill tcpdump\\033[0m or use Management Pane\\n' && \
-echo" C-m
+echo"
+
+tmux send-keys -t NIDS:0.1 "$TARGET_UI" C-m
 
 # Split the window into two screens
 tmux split-window -h -t NIDS:0.1
