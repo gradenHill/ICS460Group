@@ -9,7 +9,7 @@
 
 # Fix permissions for the current user
 echo "[*] Ensuring project files are owned by $USER..."
-sudo chown -R $USER:$USER .
+sudo chown -R $SUDO_USER:$SUDO_USER .
 
 
 echo "===================================================================="
