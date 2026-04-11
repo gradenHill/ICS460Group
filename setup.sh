@@ -53,21 +53,14 @@ tmux new-session -d -s NIDS
 # C-m is "enter"
 # -t = allows you to target the tmux pane
 tmux send-keys -t NIDS:0.0 "sudo ip netns exec target bash" C-m
-tmux send-keys -t NIDS:0.0 "clear" C-m
-tmux send-keys -t NIDS:0.0 "echo '=== TARGET SPACE (IP: 10.0.0.10) ==='" C-m
-tmux send-keys -t NIDS:0.0 "echo -e 'run \\033[1;32msnort -A console -q -c ./snort.conf -i virtualEthernetTargetEnd -k none\\033[0m to begin packet sniffing'" C-m
+tmux send-keys -t NIDS:0.0 "clear && echo '=== TARGET SPACE (10.0.0.10) ===' && echo '' && echo -e 'COMMAND: \\033[1;32msnort -A console -q -c ./snort.conf -i virtualEthernetTargetEnd -k none\\033[0m'" C-m
 
 # Split the window into two screens
 tmux split-window -h -t NIDS:0.0
 
 # RIGHT PANE: Run command to enter the attacker namespace, and display available scripts
 tmux send-keys -t NIDS:0.1 "sudo ip netns exec attacker bash" C-m
-tmux send-keys -t NIDS:0.1 "cd attack-scripts/" C-m
-tmux send-keys -t NIDS:0.1 "clear" C-m
-tmux send-keys -t NIDS:0.1 "echo '=== ATTACKER SPACE (IP: 10.0.0.20) ==='" C-m
-tmux send-keys -t NIDS:0.1 "echo 'Available attacker scripts are listed below'" C-m
-tmux send-keys -t NIDS:0.1 "ls -F" C-m
-tmux send-keys -t NIDS:0.1 "echo -e 'run \\033[1;32mpython3 <scriptName>.py 10.0.0.10\\033[0m to run attack'" C-m
+tmux send-keys -t NIDS:0.1 "cd attack-scripts/ && clear && echo '=== ATTACKER SPACE (10.0.0.20) ===' && echo 'Available scripts:' && ls -F && echo '' && echo -e 'USAGE: \\033[1;32mpython3 <scriptName>.py 10.0.0.10\\033[0m'" C-m
 
 # Enable scrolling and clicking
 tmux set -g mouse on
