@@ -25,22 +25,22 @@ sudo ip netns add attacker
 sudo ip netns add target
 
 # create the virtual ethernet cable with two named ends
-sudo ip link add veth-attack type veth peer name veth-targetget
+sudo ip link add veth-attack type veth peer name veth-target
 
 # virtually plug the cable into the namespaces
 sudo ip link set veth-attack netns attacker
-sudo ip link set veth-targetget netns target
+sudo ip link set veth-target netns target
 
 # Assign the namespace ip addresses, and tell them to access the network through the cable
 sudo ip netns exec attacker ip addr add 10.0.0.20/24 dev veth-attack
-sudo ip netns exec target ip addr add 10.0.0.10/24 dev veth-targetget
+sudo ip netns exec target ip addr add 10.0.0.10/24 dev veth-target
 
 # Go in the attacker namespace and set the links to "on"
 sudo ip netns exec attacker ip link set veth-attack up
 sudo ip netns exec attacker ip link set lo up
 
 # Go in the target namespace and set the links to "on"
-sudo ip netns exec target ip link set veth-targetget up
+sudo ip netns exec target ip link set veth-target up
 sudo ip netns exec target ip link set lo up
 
 # kill any existing tmux NIDS sessions and start new
