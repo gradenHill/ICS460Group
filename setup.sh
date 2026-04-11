@@ -65,7 +65,7 @@ printf 'STEP 1: Start tcpdump to capture pcaps\\n' && \
 printf '\\033[1;32mtcpdump -i veth-target -w capture.pcap &\\033[0m\\n\\n' && \
 printf 'STEP 2: Start Snort to demonstrate detection\\n' && \
 printf '\\033[1;32msnort -A console -q -c ./snort.conf -i veth-target -k none\\033[0m\\n\\n' && \
-printf '--- EXIT INSTRUCTIONS ---\\n' && \
+printf 'EXIT INSTRUCTIONS\\n' && \
 printf '1. Stop Snort: Use Management Pane\\n' && \
 printf '2. Stop tcpdump: Type \\033[1;33mpkill tcpdump\\033[0m or use Management Pane\\n' && \
 echo"
