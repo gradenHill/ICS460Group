@@ -1,117 +1,76 @@
 #!/bin/bash
 
-# ==============================================================================
-# ICS 460 - NIDS Master Environment & Network Builder
-# Prepared for: Graden Hill (Server/Snort Lead) 
-# Purpose: Automates tool installation and internal network simulation [cite: 6, 14]
-# ==============================================================================
-
-
 # Fix permissions for the current user
-echo "[*] Ensuring project files are owned by $USER..."
 sudo chown -R $SUDO_USER:$SUDO_USER .
 
-
-echo "===================================================================="
-echo " Starting ICS 460 NIDS Laboratory Provisioning..."
-echo "===================================================================="
-
-# ------------------------------------------------------------------------------
-# PHASE 1: Tooling & Dependencies [cite: 14, 15]
-# ------------------------------------------------------------------------------
-echo "[*] PHASE 1: Installing Core Security & Automation Tools..."
+# Default answers to the package manager, prevent user from needing to answer them.
 export DEBIAN_FRONTEND=noninteractive
 
-# Update system repositories
+# download latest list of available software (-qq = quietly)
 sudo apt-get update -qq
 
-# Pre-configure Wireshark permissions for non-interactive install
+# Pipe in answers to Wireshark questions. Allows non-root users to save network packets.
 echo "wireshark-common wireshark-common/install-setuid boolean true" | sudo debconf-set-selections
 
-# Install Snort (NIDS), tcpdump (Capture), and Python/Scapy (Attacker) [cite: 15, 16]
+# install everything needed to run the lab (-qq = quietly, -y == automatically)
 sudo apt-get install -y -qq snort tcpdump wireshark python3 python3-pip python3-scapy tmux
-echo "[+] All required software packages are installed."
 
-# ------------------------------------------------------------------------------
-# PHASE 2: Virtual Network Infrastructure 
-# ------------------------------------------------------------------------------
-echo "[*] PHASE 2: Building Isolated Network Namespaces..."
-
-# Clean up existing namespaces to ensure a fresh state
+# Delete namespaces if they already exist
+# `2>/dev/null` silences expected errors
 sudo ip netns del attacker 2>/dev/null
 sudo ip netns del target 2>/dev/null
 
-# Create Attacker and Target namespaces [cite: 10]
+# recreate the namespacces
 sudo ip netns add attacker
 sudo ip netns add target
 
-# Create the virtual Ethernet cable (veth pair) to simulate the 'wire' [cite: 7]
-sudo ip link add veth-att type veth peer name veth-tar
+# create the virtual ethernet cable with two named ends
+sudo ip link add virtualEthernetAttackerEnd type veth peer name virtualEthernetTargetEnd
 
-# Plug the cable into each respective namespace
-sudo ip link set veth-att netns attacker
-sudo ip link set veth-tar netns target
+# virtually plug the cable into the namespaces
+sudo ip link set virtualEthernetAttackerEnd netns attacker
+sudo ip link set virtualEthernetTargetEnd netns target
 
-# ------------------------------------------------------------------------------
-# PHASE 3: IP Assignment & Interface Activation
-# ------------------------------------------------------------------------------
-echo "[*] PHASE 3: Assigning Static IPs (Subnet: 10.0.0.0/24)..."
+# Assign the namespace ip addresses, and tell them to access the network through the cable
+sudo ip netns exec attacker ip addr add 10.0.0.20/24 dev virtualEthernetAttackerEnd
+sudo ip netns exec target ip addr add 10.0.0.10/24 dev virtualEthernetTargetEnd
 
-# Assign IP to Attacker (10.0.0.20) and Target (10.0.0.10)
-sudo ip netns exec attacker ip addr add 10.0.0.20/24 dev veth-att
-sudo ip netns exec target ip addr add 10.0.0.10/24 dev veth-tar
-
-# Bring interfaces and local loopbacks online
-sudo ip netns exec attacker ip link set veth-att up
+# Go in the attacker namespace and set the links to "on"
+sudo ip netns exec attacker ip link set virtualEthernetAttackerEnd up
 sudo ip netns exec attacker ip link set lo up
 
-sudo ip netns exec target ip link set veth-tar up
+# Go in the target namespace and set the links to "on"
+sudo ip netns exec target ip link set virtualEthernetTargetEnd up
 sudo ip netns exec target ip link set lo up
 
-echo "[+] Internal network is live. Target: 10.0.0.10 | Attacker: 10.0.0.20"
+# kill any existing tmux NIDS sessions
+tmux kill-session -t NIDS 2>/dev/null
 
-# ------------------------------------------------------------------------------
-# PHASE 4: Connectivity Verification
-# ------------------------------------------------------------------------------
-echo "[*] PHASE 4: Running Diagnostic Connectivity Check..."
-
-if sudo ip netns exec attacker ping -c 1 10.0.0.10 &> /dev/null
-then
-    echo "[+] SUCCESS: Internal link verified. Namespaces can communicate."
-else
-    echo "[-] FAILED: Link offline. Please check network namespace status."
-fi
-
-# ------------------------------------------------------------------------------
-# PHASE 5: Automated Workspace Launch (tmux) 
-# ------------------------------------------------------------------------------
-echo "[*] PHASE 5: Launching NIDS Project Workspace..."
-
-# Check if already in tmux to prevent nesting issues
-if [ -z "$TMUX" ]; then
-    # Create new session named 'NIDS'
-    tmux new-session -d -s NIDS -n 'Lab'
+# Create new session
+tmux new-session -d -s NIDS
     
-    # Left Pane: The Target Environment (Graden Hill) 
-    tmux send-keys -t NIDS:0.0 "sudo ip netns exec target bash" C-m
-    tmux send-keys -t NIDS:0.0 "clear && echo '--- TARGET SPACE (10.0.0.10) ---' && echo 'Role: Snort Management & PCAP Capture'" C-m
-    
-    # Split the screen vertically
-    tmux split-window -h -t NIDS:0.0
+# LEFT PANE: Run command to enter the target namespace
+# C-m is "enter"
+# -t = allows you to target the tmux pane
+tmux send-keys -t NIDS:0.0 "sudo ip netns exec target bash" C-m
+tmux send-keys -t NIDS:0.0 "clear" C-m
+tmux send-keys -t NIDS:0.0 "echo 'TARGET SPACE (10.0.0.10)'" C-m
+tmux send-keys -t NIDS:0.0 "echo -e 'run \033[1;32msnort -A console -q -c ./snort.conf -i virtualEthernetTargetEnd -k none\033[0m to begin packet sniffing" C-m
 
-    # Enable scrolling and clicking windows independently
-    tmux set -g mouse on
+# Split the window into two screens
+tmux split-window -h -t NIDS:0.0
 
-    # Right Pane: The Attacker Environment
-    tmux send-keys -t NIDS:0.1 "sudo ip netns exec attacker bash" C-m
-    tmux send-keys -t NIDS:0.1 "clear && echo '--- ATTACKER SPACE (10.0.0.20) ---' && echo 'Role: Python & Scapy Attack Scripting'" C-m
-    
-    # Attach to the split-view session
-    tmux attach-session -t NIDS
-else
-    echo "===================================================================="
-    echo " [!] Already inside tmux. Setup complete."
-    echo " Enter Target:   sudo ip netns exec target bash"
-    echo " Enter Attacker: sudo ip netns exec attacker bash"
-    echo "===================================================================="
-fi
+# RIGHT PANE: Run command to enter the attacker namespace, and display available scripts
+tmux send-keys -t NIDS:0.1 "sudo ip netns exec attacker bash" C-m
+tmux send-keys -t NIDS:0.1 "cd attack-scripts/" C-m
+tmux send-keys -t NIDS:0.1 "clear" C-m
+tmux send-keys -t NIDS:0.1 "echo 'ATTACKER SPACE (10.0.0.20)" C-m
+tmux send-keys -t NIDS:0.1 "echo 'Available attacker scripts are listed below" C-m
+tmux send-keys -t NIDS:0.1 "ls -F" C-m
+tmux send-keys -t NIDS:0.1 "echo -e 'run \033[1;32mpython3 <scriptName>.py 10.0.0.10\033[0m to run attack" C-m
+
+# Enable scrolling and clicking
+tmux set -g mouse on
+
+# Attach to the split-view session
+tmux attach-session -t NIDS
