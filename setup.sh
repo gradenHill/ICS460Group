@@ -48,7 +48,7 @@ tmux kill-session -t NIDS 2>/dev/null
 tmux new-session -d -s NIDS
     
 # TOP PANE: host space
-tmux send-keys -t NIDS:0.0 "clear && printf '=== MANAGEMENT PANE (HOST) ===\\n\\n' && printf 'To shut down the lab and return to the host shell:\\n\\033[1;31mtmux kill-server\\033[0m\\n' && echo" C-m
+tmux send-keys -t NIDS:0.0 "clear && printf '=== MANAGEMENT PANE ===\\n\\n' && printf 'To kill Snort:\\n\\033[1;31msudo pkill -9 snort\\033[0m\\n\\n' && printf 'To exit:\\n\\033[1;31mtmux kill-server\\033[0m\\n' && echo" C-m
 
 # create bottom section
 tmux split-window -v -t NIDS:0.0
