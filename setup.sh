@@ -46,6 +46,14 @@ sudo ip netns exec target ip link set lo up
 # Start server for target
 sudo ip netns exec target python3 -m http.server 80 > /dev/null 2>&1 &
 
+# We were having issues where the Attacker kernel was killing our own attacks by sending automatically sending RSTs to fix errors. After googling some solutions, the iptables utility was found.
+sudo ip netns exec attacker iptables -A OUTPUT -p tcp --tcp-flags RST RST -j DROP
+## iptables = utility to configure kernel's filtering rules
+## -A OUTPUT = append a new rule to "OUTPUT" chain
+## -p tcp = only check TCP traffic
+## --tcp-flags RST RST = checks for active reset flags
+## -j DROP = delete the packets
+
 # kill any existing tmux NIDS sessions and start new
 tmux kill-session -t NIDS 2>/dev/null
 tmux new-session -d -s NIDS
