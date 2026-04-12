@@ -1,5 +1,4 @@
 from datetime import datetime
-import sys
 from scapy.all import rdpcap, TCP, IP
 import re
 
@@ -22,20 +21,23 @@ def analyze_nids(pcap_file, alert_file):
     packets = rdpcap(pcap_file)
     tp, fn, fp, tn = 0, 0, 0, 0
     
-    for pkt in packets:
+    for i, pkt in enumerate(packets):
         if IP in pkt and TCP in pkt:
-            # Attacker IP? (malicious?)
-            is_malicious = (pkt[IP].src == "10.0.0.20" and pkt[TCP].flags == "S")
-
-            pkt_time = datetime.fromtimestamp(float(pkt.time)).strftime("%H:%M:%S")
+            # LABEL MALICIOUS PACKETS: If Window is 1234, it's a known malicious packet from our script
+            is_malicious = (pkt[TCP].window == 1234)
             
-            # Snort Alert? (Detected?)
+            # Did Snort alert?
+            pkt_time = datetime.fromtimestamp(float(pkt.time)).strftime("%H:%M:%S")
             has_alert = any(time.startswith(pkt_time) for time in alert_times)
 
-            if is_malicious and has_alert: tp += 1
-            elif is_malicious and not has_alert: fn += 1
-            elif not is_malicious and has_alert: fp += 1
-            elif not is_malicious and not has_alert: tn += 1
+            if is_malicious and has_alert: 
+                tp += 1
+            elif is_malicious and not has_alert: 
+                fn += 1
+            elif not is_malicious and has_alert: 
+                fp += 1
+            else: 
+                tn += 1
 
     # PRINT RESULTS
     total = tp + fn + fp + tn

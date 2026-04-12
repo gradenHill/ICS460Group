@@ -1,20 +1,32 @@
 from scapy.all import IP, TCP, send
 import random
+import os
+import time
 
 # Target Configuration
 target_ip = "10.0.0.10"
 target_port = 80
 
-print(f"[*] Starting SYN flood on {target_ip}:{target_port}...")
+# We use a non-standard window size to allow our analyzer to accuretely detect malicious packets
+MALICIOUS_WINDOW = 1234 
 
-# Create a 'for' loop to send 10 test packets
-for i in range(10):
-    # Craft the packet
-    # We randomize the source port so it looks like different users
-    packet = IP(dst=target_ip)/TCP(sport=random.randint(1024,65535), dport=target_port, flags="S")
+# We will run 10 cycles of 5 malicious packets followed by 1 safe packet
+for cycle in range(10):
+    print(f"\n--- Cycle {cycle + 1} ---")
     
-    # Send the packet onto the virtual wire
-    send(packet, verbose=False)
-    print(f"[+] Packet {i+1} sent.")
+    # 1. SEND MALICIOUS TRAFFIC (SYN Flood)
+    for i in range(5):
+        mal_packet = IP(dst=target_ip)/TCP(
+            sport=random.randint(1024, 65535), 
+            dport=target_port, 
+            flags="S", 
+            window=MALICIOUS_WINDOW
+        )
+        send(mal_packet, verbose=False)
+        print(f"[!] MALICIOUS: SYN Packet sent (Watermark: {MALICIOUS_WINDOW})")
 
-print("[*] Test complete.")
+    # 2. SEND SAFE TRAFFIC (Normal User Activity)
+    # curl uses a standard, valid TCP handshake
+    os.system(f"curl -s --connect-timeout 1 {target_ip} > /dev/null")
+    
+    time.sleep(0.5)
