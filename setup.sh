@@ -43,6 +43,9 @@ sudo ip netns exec attacker ip link set lo up
 sudo ip netns exec target ip link set veth-target up
 sudo ip netns exec target ip link set lo up
 
+# Start server for target
+sudo ip netns exec target python3 -m http.server 80 > /dev/null 2>&1 &
+
 # kill any existing tmux NIDS sessions and start new
 tmux kill-session -t NIDS 2>/dev/null
 tmux new-session -d -s NIDS
@@ -61,13 +64,14 @@ tmux send-keys -t NIDS:0.1 "sudo ip netns exec target bash" C-m
 ## Print instructions
 TARGET_UI="history -s 'snort -A console -q -c ./snort.conf -i veth-target -k none'; history -s 'tcpdump -i veth-target -w capture.pcap &'; clear && \
 printf '=== TARGET SPACE (10.0.0.10) ===\\n\\n' && \
-printf 'STEP 1: Start tcpdump to capture pcaps\\n' && \
+printf 'STATUS: \\033[1;32mPort 80 is OPEN\\033[0m (Python HTTP Server)\\n\\n' && \
+printf 'STEP 1: Start Background Recording\\n' && \
 printf '\\033[1;32mtcpdump -i veth-target -w capture.pcap &\\033[0m\\n\\n' && \
-printf 'STEP 2: Start Snort to demonstrate detection\\n' && \
+printf 'STEP 2: Start Intrusion Detection\\n' && \
 printf '\\033[1;32msnort -A console -q -c ./snort.conf -i veth-target -k none\\033[0m\\n\\n' && \
-printf 'EXIT INSTRUCTIONS\\n' && \
-printf '1. Stop Snort: Use Management Pane\\n' && \
-printf '2. Stop tcpdump: Type \\033[1;33mpkill tcpdump\\033[0m or use Management Pane\\n' && \
+printf -- '--- EXIT INSTRUCTIONS ---\\n' && \
+printf '1. Stop Snort: Ctrl+C\\n' && \
+printf '2. Stop tcpdump: pkill tcpdump\\n' && \
 echo"
 
 tmux send-keys -t NIDS:0.1 "$TARGET_UI" C-m

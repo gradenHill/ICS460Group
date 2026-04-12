@@ -109,7 +109,7 @@ This pane automatically logs into the `attacker` namespace.
 * **Test Ping Detection:** Run `ping -c 3 10.0.0.10`. The Target pane should respond.
 * **Run Attacks (not yet written):** Navigate to `attack-scripts/` and execute Python/Scapy scripts targeting `10.0.0.10`.
 
-## How to Run Tests
+## Running Scripts and Capture .pcaps
 
 ## Troubleshooting
 1. After you git pull, the files might be owned by a different user. If Snort won't start, run this from the root of the repo:
@@ -117,3 +117,12 @@ This pane automatically logs into the `attacker` namespace.
 
 2. If Git blocks you from pulling, run:
 `git config --global --add safe.directory /home/$USER/ICS460Group`
+
+## Analyzing .pcaps
+To download the .pcaps, run the following command on your non-VM system:
+
+```bash
+scp [Ubuntu username]@[bridge IP address]:~/ICS460Group/capture.pcap ./
+```
+
+This will download capture.pcap so it can be analyzed with wireshark on your user interface.
