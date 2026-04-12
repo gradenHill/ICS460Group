@@ -54,4 +54,4 @@ def analyze_nids(pcap_file, alert_file):
     print(f"DETECTION ACCURACY: {accuracy:.2%}")
 
 if __name__ == "__main__":
-    analyze_nids("capture.pcap", "alert.fast")
+    analyze_nids("capture.pcap", "alert")
