@@ -59,7 +59,7 @@ tmux kill-session -t NIDS 2>/dev/null
 tmux new-session -d -s NIDS
     
 # TOP PANE: host space
-tmux send-keys -t NIDS:0.0 "clear && printf '=== MANAGEMENT PANE ===\\n\\n' && printf 'To kill Snort:\\n\\033[1;31msudo pkill -9 snort\\033[0m\\n\\n' && printf 'To exit:\\n\\033[1;31mtmux kill-server\\033[0m\\n' && echo" C-m
+tmux send-keys -t NIDS:0.0 "clear && printf '=== MANAGEMENT PANE ===\\n\\n' && printf 'To kill Snort:\\n\\033[1;31msudo pkill -9 snort\\033[0m\\n\\n' && printf 'To run analysis:\\n\\033[1;31mpython3 analyzer.py\\033[0m\\n\\n' && printf 'To exit:\\n\\033[1;31mtmux kill-server\\033[0m\\n' && echo" C-m
 
 # create bottom section
 tmux split-window -v -t NIDS:0.0
@@ -70,13 +70,13 @@ tmux split-window -v -t NIDS:0.0
 tmux send-keys -t NIDS:0.1 "sudo ip netns exec target bash" C-m
 
 ## Print instructions
-TARGET_UI="history -s 'snort -A console -q -c ./snort.conf -i veth-target -k none'; history -s 'tcpdump -i veth-target -w capture.pcap &'; clear && \
+TARGET_UI="history -s 'snort -c ./snort.conf -i veth-target -k none -l . -A fast'; history -s 'tcpdump -i veth-target -w capture.pcap &'; clear && \
 printf '=== TARGET SPACE (10.0.0.10) ===\\n\\n' && \
 printf 'STATUS: \\033[1;32mPort 80 is OPEN\\033[0m (Python HTTP Server)\\n\\n' && \
 printf 'STEP 1: Start Background Recording\\n' && \
 printf '\\033[1;32mtcpdump -i veth-target -w capture.pcap &\\033[0m\\n\\n' && \
 printf 'STEP 2: Start Intrusion Detection\\n' && \
-printf '\\033[1;32msnort -A console -q -c ./snort.conf -i veth-target -k none\\033[0m\\n\\n' && \
+printf '\\033[1;32msnort -c ./snort.conf -i veth-target -k none -l . -A fast\\033[0m\\n\\n' && \
 printf -- '--- EXIT INSTRUCTIONS ---\\n' && \
 printf '1. Stop Snort: Ctrl+C\\n' && \
 printf '2. Stop tcpdump: pkill tcpdump\\n' && \
