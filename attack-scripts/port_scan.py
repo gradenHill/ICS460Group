@@ -36,7 +36,7 @@ def main():
     if open_ports:
         for port in open_ports:
             print(f"- {port}")
-        else:
-            print("No Open Ports")
+    else:
+        print("No Open Ports")
 if __name__ == "__main__":
     main()
