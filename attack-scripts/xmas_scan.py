@@ -2,7 +2,7 @@ import sys
 import random
 from scapy.all import IP, TCP, send
 
-target_ip ="10.0.0.3"
+target_ip ="10.0.0.10"
 
 def main():
     print(f"Starting xmas scan against {target_ip}")

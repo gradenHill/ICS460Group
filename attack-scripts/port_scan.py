@@ -1,5 +1,5 @@
 import sys
-from scapy.all import IP, TCP, sr1
+from scapy.all import IP, TCP, sr1, send
 
 target_ip = "10.0.0.10"
 common_ports=[20,21,22,23,25,53,67,68,69,80,110,123,135,137,138,139,143,161,389,443,445,993,995,1433,1521,3306,3389,5432,5900,8080]
