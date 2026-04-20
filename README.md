@@ -71,7 +71,7 @@ ssh [Ubuntu username]@[bridge IP address]
 ```
 
 ### Running the Setup Script
-The setup script, `./setup.sh`, performs the following tasks:
+The setup script, `sudo ./setup.sh`, performs the following tasks:
 1. Ensures the user has permission to the files in the directory
 2. Sets `DEBIAN_FRONTEND=noninteractive`
 3. Automatically answers Wireshark prompts
