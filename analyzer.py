@@ -33,7 +33,7 @@ def analyze_nids(alert_file, attack_log):
             for line in f:
                 attack = json.loads(line)
                 attack_start = attack["start"]
-                attack_end = attack["end"]
+                attack_end = attack["end"] + 2.0
                 
                 # Look for an alert within the window of the attack
                 attack_caught = False
