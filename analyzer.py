@@ -60,7 +60,7 @@ def analyze_nids(alert_file, attack_log, pcap_file):
             fn += 1
             print(f"[-] False Negative: {window['type']} at {window['start']}")
 
-    # Find packets outside of the window that we not alerted. These are True negatives
+    # Find packets outside of the window that were not alerted. These are True negatives
     try:
         packets = rdpcap(pcap_file)
         for pkt in packets:
