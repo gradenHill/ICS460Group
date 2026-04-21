@@ -12,7 +12,7 @@ target_port = 80
 
 start_time = time.time()
 
-for cycle in range(10):
+for cycle in range(30):
     print(f"\n--- Cycle {cycle + 1} ---")
     
     start_time = time.time()
@@ -37,7 +37,7 @@ for cycle in range(10):
         log.write(json.dumps(attack_event) + "\n")
     print("\n[+] Attack time window logged to attack_log.json")
 
-    time.sleep(3)
+    time.sleep(.5)
     # 2. SEND SAFE TRAFFIC (Normal User Activity)
     # curl uses a standard, valid TCP handshake
     os.system(f"curl -s --connect-timeout 1 {target_ip} > /dev/null")
