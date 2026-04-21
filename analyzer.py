@@ -28,26 +28,29 @@ def analyze_nids(alert_file, attack_log):
     true_positives = 0
     false_negatives = 0
 
-
-    with open(attack_log, "r") as f:
-        for line in f:
-            attack = json.loads(line)
-            attack_start = attack["start"]
-            attack_end = attack["end"]
-            
-            # Look for an alert within the window of the attack
-            attack_caught = False
-            for atime in alert_times:
-                if attack_start <= atime <= attack_end:
-                    attack_caught = True
-                    break
-            
-            if attack_caught:
-                true_positives += 1
-                print(f"[+] DETECTED: {attack['attack_type']}")
-            else:
-                false_negatives += 1
-                print(f"[-] MISSED:   {attack['attack_type']}")
+    try:
+        with open(attack_log, "r") as f:
+            for line in f:
+                attack = json.loads(line)
+                attack_start = attack["start"]
+                attack_end = attack["end"]
+                
+                # Look for an alert within the window of the attack
+                attack_caught = False
+                for atime in alert_times:
+                    if attack_start <= atime <= attack_end:
+                        attack_caught = True
+                        break
+                
+                if attack_caught:
+                    true_positives += 1
+                    print(f"[+] DETECTED: {attack['attack_type']}")
+                else:
+                    false_negatives += 1
+                    print(f"[-] MISSED:   {attack['attack_type']}")
+    except FileNotFoundError:
+        print(f"Error: {attack_log} not found.")
+        return
 
     total_attacks = true_positives + false_negatives
     if total_attacks > 0:
@@ -61,4 +64,4 @@ def analyze_nids(alert_file, attack_log):
         print("No attacks found in the log.")
 
 if __name__ == "__main__":
-    analyze_nids("alert", "attack-scripts/attack_log.json")
+    analyze_nids("alert", "attack_log.json")
