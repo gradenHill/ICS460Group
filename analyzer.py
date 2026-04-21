@@ -5,7 +5,7 @@ import re
 def analyze_nids(pcap_file, alert_file):
     print(f"--- ANALYZING: {pcap_file} vs {alert_file} ---")
     
-    # LOAD SNORT ALERT TIMES
+    #LOAD SNORT ALERT TIMES
     alert_times = []
     try:
         with open(alert_file, 'r') as f:
