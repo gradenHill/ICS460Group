@@ -80,7 +80,7 @@ def analyze_nids(alert_file, attack_log, pcap_file):
     print(f"False Negatives: {fn}")
     print(f"False Positives: {fp}")
     print(f"True Negatives:  {tn}")
-    print(f"ACCURACY:  {(tp + tn/total_events)}")
+    print(f"ACCURACY:  {(tp + tn)/total_events}")
 
 if __name__ == "__main__":
     analyze_nids("alert", "attack_log.json", "capture.pcap")
