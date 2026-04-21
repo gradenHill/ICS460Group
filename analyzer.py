@@ -46,18 +46,19 @@ def analyze_nids(alert_file, attack_log, pcap_file):
     tn = 0
 
     # every alert within a window is a true positive. any window without an alert is a false negative
-    for window in attack_windows:
-        if any(window["start"] <= atime <= window["end"] for atime in alert_times):
+    for atime in alert_times:
+        is_in_window = any(win["start"] <= atime <= win["end"] for win in attack_windows)
+        if is_in_window:
             tp += 1
         else:
-            fn += 1
-
-    # find packets outside the alert windows that was alerted. These are false positives
-    for atime in alert_times:
-        in_window = any(win["start"] <= atime <= win["end"] for win in attack_windows)
-        if not in_window:
             fp += 1
             print(f"[!] False Positive at {atime}")
+    # Any window without an alert is a false negative
+    for window in attack_windows:
+        has_alert = any(window["start"] <= atime <= window["end"] for atime in alert_times)
+        if not has_alert:
+            fn += 1
+            print(f"[-] False Negative: {window['type']} at {window['start']}")
 
     # Find packets outside of the window that we not alerted. These are True negatives
     try:
@@ -65,10 +66,8 @@ def analyze_nids(alert_file, attack_log, pcap_file):
         for pkt in packets:
             if pkt.haslayer(IP):
                 pkt_time = float(pkt.time)
-                
-                is_malicious_packet = any(win["start"] <= pkt_time <= win["end"] for win in attack_windows)
-                
-                if not is_malicious_packet:
+                isMalicious = any(win["start"] <= pkt_time <= win["end"] for win in attack_windows)
+                if not isMalicious:
                     has_alert = any(abs(pkt_time - atime) < 0.1 for atime in alert_times)
                     if not has_alert:
                         tn += 1
