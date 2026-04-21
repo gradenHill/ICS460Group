@@ -1,1 +1,9 @@
-alert tcp any any -> 10.0.0.10 80 (msg:"POTENTIAL SYN FLOOD DETECTED"; flags:S; sid:1000001; rev:1;)
+alert tcp any any -> 10.0.0.10 80 ( msg:"POTENTIAL SYN FLOOD DETECTED"; flags:S; threshold:type threshold, track by_src, count 10, seconds 5; sid:1000001; rev:2;)
+
+alert tcp any any -> 10.0.0.10 any ( msg:"POTENTIAL XMAS SCAN DETECTED"; flags:FPU; sid:1000002; rev:1;)
+
+alert tcp any any -> 10.0.0.10 any ( msg:"NULL FLAG DETECTED"; flags:0; sid:1000003; rev:1;)
+
+alert tcp any any -> 10.0.0.10 any ( msg:"SYN/FIN FLAG DETECTED"; flags:SF; sid:1000004; rev:1;)
+
+alert tcp any any -> 10.0.0.10 any ( msg:"POTENTIAL PORT SCAN DETECTED"; flags:S; threshold:type threshold, track by_src, count 10, seconds 5; sid:1000005; rev:2;)
