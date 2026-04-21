@@ -12,7 +12,7 @@ target_port = 80
 
 start_time = time.time()
 
-for cycle in range(5):
+for cycle in range(3):
     print(f"\n--- Cycle {cycle + 1} ---")
     
     start_time = time.time()
