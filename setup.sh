@@ -58,6 +58,9 @@ sudo ip netns exec attacker iptables -A OUTPUT -p tcp --tcp-flags RST RST -j DRO
 tmux kill-session -t NIDS 2>/dev/null
 tmux new-session -d -s NIDS
     
+# Giving user access to cleanUp.sh script
+chmod +x cleanUp.sh
+
 # TOP PANE: host space
 tmux send-keys -t NIDS:0.0 "clear && printf '=== MANAGEMENT PANE ===\\n\\n' && printf 'To kill Snort:\\n\\033[1;31msudo pkill -9 snort\\033[0m\\n\\n' && printf 'To run analysis:\\n\\033[1;31mpython3 analyzer.py\\033[0m\\n\\n' && printf 'To clear logs:\\n\\033[1;31m./cleanUp.sh\\033[0m\\n\\n' && printf 'To exit:\\n\\033[1;31mtmux kill-server\\033[0m\\n' && echo" C-m
 # create bottom section
