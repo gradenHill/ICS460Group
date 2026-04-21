@@ -33,7 +33,7 @@ for cycle in range(10):
         "start": start_time,
         "end": end_time
     }
-    with open("attack_log.json", "a") as log:
+    with open("../attack_log.json", "a") as log:
         log.write(json.dumps(attack_event) + "\n")
     print("\n[+] Attack time window logged to attack_log.json")
 

@@ -9,7 +9,7 @@ def parse_snort_time(snort_time_str):
     dt = datetime.strptime(full_time_str, "%Y/%m/%d-%H:%M:%S.%f")
     return dt.timestamp()
 
-def analyze_nids(alert_file):
+def analyze_nids(alert_file, attack_log):
     print(f"--- ANALYZING: ALERTS ---")
     
     #LOAD SNORT ALERT TIMES
@@ -29,7 +29,7 @@ def analyze_nids(alert_file):
     false_negatives = 0
 
 
-    with open("attack_log.json", "r") as f:
+    with open(attack_log, "r") as f:
         for line in f:
             attack = json.loads(line)
             attack_start = attack["start"]
@@ -61,4 +61,4 @@ def analyze_nids(alert_file):
         print("No attacks found in the log.")
 
 if __name__ == "__main__":
-    analyze_nids("alert")
+    analyze_nids("alert", "attack-scripts/attack_log.json")
