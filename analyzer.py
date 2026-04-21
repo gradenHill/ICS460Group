@@ -1,56 +1,64 @@
 from datetime import datetime
-from scapy.all import rdpcap, TCP, IP
+import json
 import re
 
-def analyze_nids(pcap_file, alert_file):
-    print(f"--- ANALYZING: {pcap_file} vs {alert_file} ---")
+# Turn snort time stamp into a standard timestamp
+def parse_snort_time(snort_time_str):
+    current_year = datetime.now().year
+    full_time_str = f"{current_year}/{snort_time_str}"
+    dt = datetime.strptime(full_time_str, "%Y/%m/%d-%H:%M:%S.%f")
+    return dt.timestamp()
+
+def analyze_nids(alert_file):
+    print(f"--- ANALYZING: ALERTS ---")
     
     #LOAD SNORT ALERT TIMES
     alert_times = []
     try:
-        with open(alert_file, 'r') as f:
+        with open(alert_file, "r") as f:
             for line in f:
-                match = re.search(r'(\d{2}/\d{2}-\d{2}:\d{2}:\d{2}\.\d{6})', line)
+                # Snort lines look like: 04/24-15:20:01.123456 [**] [1:100...
+                match = re.match(r"^(\d{2}/\d{2}-\d{2}:\d{2}:\d{2}\.\d+)", line)
                 if match:
-                    alert_times.append(match.group(1).split('-')[1])
+                    alert_times.append(parse_snort_time(match.group(1)))
     except FileNotFoundError:
         print(f"Error: {alert_file} not found.")
         return
 
-    # COMPARE TO PCAP
-    packets = rdpcap(pcap_file)
-    tp, fn, fp, tn = 0, 0, 0, 0
-    
-    for i, pkt in enumerate(packets):
-        if IP in pkt and TCP in pkt:
-            # LABEL MALICIOUS PACKETS: If Window is 1234, it's a known malicious packet from our script
-            is_malicious = (pkt[TCP].window == 1234)
+    true_positives = 0
+    false_negatives = 0
+
+
+    with open("attack_log.json", "r") as f:
+        for line in f:
+            attack = json.loads(line)
+            attack_start = attack["start"]
+            attack_end = attack["end"]
             
-            # Did Snort alert?
-            pkt_time = datetime.fromtimestamp(float(pkt.time)).strftime("%H:%M:%S")
-            has_alert = any(time.startswith(pkt_time) for time in alert_times)
+            # Look for an alert within the window of the attack
+            attack_caught = False
+            for atime in alert_times:
+                if attack_start <= atime <= attack_end:
+                    attack_caught = True
+                    break
+            
+            if attack_caught:
+                true_positives += 1
+                print(f"[+] DETECTED: {attack['attack_type']}")
+            else:
+                false_negatives += 1
+                print(f"[-] MISSED:   {attack['attack_type']}")
 
-            if is_malicious and has_alert: 
-                tp += 1
-            elif is_malicious and not has_alert: 
-                fn += 1
-            elif not is_malicious and has_alert: 
-                fp += 1
-            else: 
-                tn += 1
-
-    # PRINT RESULTS
-    total = tp + fn + fp + tn
-    accuracy = (tp + tn) / total if total > 0 else 0
-    
-    print(f"\n[ RESULTS ]")
-    print(f"Total Packets Processed: {total}")
-    print(f"True Positives (Detected):  {tp}")
-    print(f"False Negatives (Missed):   {fn}")
-    print(f"False Positives (Wrong):    {fp}")
-    print(f"True Negatives (Normal):    {tn}")
-    print("-" * 30)
-    print(f"DETECTION ACCURACY: {accuracy:.2%}")
+    total_attacks = true_positives + false_negatives
+    if total_attacks > 0:
+        accuracy = (true_positives / total_attacks) * 100
+        print("\n--- FINAL RESULTS ---")
+        print(f"Total Attacks Run: {total_attacks}")
+        print(f"True Positives (Caught): {true_positives}")
+        print(f"False Negatives (Missed): {false_negatives}")
+        print(f"DETECTION ACCURACY: {accuracy:.2f}%")
+    else:
+        print("No attacks found in the log.")
 
 if __name__ == "__main__":
-    analyze_nids("capture.pcap", "alert")
+    analyze_nids("alert")
