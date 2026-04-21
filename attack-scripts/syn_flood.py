@@ -25,7 +25,7 @@ for cycle in range(10):
             flags="S", 
         )
         send(mal_packet, verbose=False)
-        print(f"[!] MALICIOUS: SYN Packet sent (Watermark: {MALICIOUS_WINDOW})")
+        print(f"[!] MALICIOUS: SYN Packet sent")
     time.sleep(1)
     end_time = time.time()
     attack_event = {
