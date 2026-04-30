@@ -1,16 +1,18 @@
 # ICS460Group: Network Intrusion Detection
 
 ## Group Members
-* **Graden Hill:** Infrastructure Lead. Managed the Ubuntu Server, network namespace architecture, and Snort daemon configuration.
+* **Graden Hill:** Infrastructure Lead. Managed the Ubuntu Server, network namespace architecture, and Snort rule configuration.
 * **Trevor Reedy:** Attack Automation. Developed Python/Scapy scripts to simulate malicious TCP/IP traffic.
-* **Kwesi Dacosta:** Data Analyst. Managed packet captures (PCAPs) and calculated empirical detection metrics (False Positives/Negatives).
-* **Elise DeSimone:** Project Manager & Documentation. Maintained the GitHub repository and finalized the experimental reports.
+* **Kwesi Dacosta:** Managed packet captures (PCAPs) and calculated analytics (False/True Positives/Negatives).
+* **Elise DeSimone:** Project Manager & Documentation. Maintained the GitHub repository, finalized reports, contributed heavily to `setup.sh` bash script.
 
 ## Repository Structure
-* `/attack-scripts/`: Python and Scapy attack automation.
-* `/snort-rules/`: Snort `local.rules` and configuration files.
-* `/pcaps/`: Sample packet captures for rule verification.
-* `/docs/`: Project proposal, architecture diagrams, and final reports.
+* `/attack-scripts`: Python-Scapy attack automation.
+* `/snort-rules`: Snort `local.rules` and configuration files.
+* `analyzer.py`: Calculates Snort rule accuracy based on attack time windows and alert timestamps
+* `setup.sh`: Verifies installations, creates virtual network, and sets up tmux display.
+* `cleanUp.sh`: Removes all files created by previous runs to ensure analysis has a clean slate.
+
 
 ## Technical Architecture
 * **Subnet:** `10.0.0.0/24`
@@ -29,7 +31,7 @@ You need software to run the Virtual Machine (VM).
 
 ### 2. Download Ubuntu Server
 Download the **Ubuntu 22.04 LTS Server** ISO. 
-* **Crucial:** Ensure you download the correct version for your CPU.
+* Ensure you download the correct version for your CPU.
     * **Apple Silicon (M1/M2/M3):** Download the **ARM64** ISO.
     * **Intel/AMD (Windows/Old Macs):** Download the **AMD64 (x86_64)** ISO.
 
@@ -39,11 +41,8 @@ Download the **Ubuntu 22.04 LTS Server** ISO.
 3.  **Network:** Set the network adapter to **Shared Network** or **NAT**.
 4.  Complete the Ubuntu installation process (create your own username and password).
 
-### 5. Clone the Repo
-Run the following in your VM terminal:
-```bash
-git clone https://github.com/gradenHill/ICS460Group.git
-```
+### 5. Install this directory 
+Ensure that this directory is saved to the VM.
 
 ## Launching the Attack Simulation Environment
 
@@ -85,44 +84,32 @@ The setup script, `./setup.sh`, performs the following tasks:
 5. Launches `attacker` and `target` namespaces
 6. Creates virtual ethernet cable to connect between the namespaces
 7. Plugs in the cable and turns on the links
-8. Creates a tmux session with one pane in the `attacker` namespace, and one in the `target` namespace
+8. Creates a tmux session with one pane in the `attacker` namespace, and one in the `target` namespace.
 
-To run the setup script, run the following commands, one at a time.
+Enter the root directory of this project. To run the setup script, run the following commands, one at a time.
 ```bash
-cd ICS460Group
 chmod +x setup.sh
 sudo ./setup.sh
 ```
 
-### Left Pane: The Target
+### Left Pane: Target Namespace
 This pane automatically logs into the `target` namespace.
-* **Run Snort:** `snort -A console -q -c ./snort.conf -i virtualEthernetTargetEnd -k none`
-    * `-A console` sends alerts to the console if a rule is triggered
-    * `-q` hides initialization text
-    * `-c ./snort.conf` loads the snort configuration rules
-    * `-i virtualEthernetTargetEnd` tells snort to listen on the cable to the network
-    * `-k none` disables the checksum checks, which causes issues in virtual ethernet cables. 
-* **Capture Traffic:** `tcpdump -i virtualEthernetTargetEnd -w capture.pcap`
+These commands can be automatically typed by pressing the "up" key.
+* **Capture Traffic:** `tcpdump -i veth-target -w capture.pcap &`
+* **Run Snort:** `stdbuf -oL snort -A console -q -U -c ./snort.conf -i veth-target | tee alert`
 
-### Right Pane: The Attacker
+### Right Pane: Attacker Namespace
 This pane automatically logs into the `attacker` namespace.
-* **Test Ping Detection:** Run `ping -c 3 10.0.0.10`. The Target pane should respond.
-* **Run Attacks (not yet written):** Navigate to `attack-scripts/` and execute Python/Scapy scripts targeting `10.0.0.10`.
+* **Run Attacks:**
+    * `python3 syn_flood.py`
+    * `python3 xmas_scan.py`
+    * `python3 port_scan.py`
 
-## Running Scripts and Capture .pcaps
+### Top Pane: Management Pane
+* **Kill Snort:** `sudo pkill -9 snort`
+* **Run Analysis:** `python3 analyzer.py`
+* **Reset Before Next Test:** `./cleanUp.sh`
 
 ## Troubleshooting
-1. After you git pull, the files might be owned by a different user. If Snort won't start, run this from the root of the repo:
+After you git pull, the files might be owned by a different user. If Snort won't start, run this from the root of the repo:
 `sudo chown -R $USER:$USER .`
-
-2. If Git blocks you from pulling, run:
-`git config --global --add safe.directory /home/$USER/ICS460Group`
-
-## Analyzing .pcaps
-To download the .pcaps, run the following command on your non-VM system:
-
-```bash
-scp [Ubuntu username]@[bridge IP address]:~/ICS460Group/capture.pcap ./
-```
-
-This will download capture.pcap so it can be analyzed with wireshark on your user interface.
